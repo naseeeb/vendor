@@ -11,8 +11,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-
 class RegisterUserView(APIView):
+
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -27,7 +27,7 @@ class RegisterUserView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginUserView(APIView):
-    
+   
     def post(self, request):
 
         
@@ -47,17 +47,19 @@ class LoginUserView(APIView):
 class VendorListCreateView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    
+
     
     def get(self, request):
         vendors = Vendor.objects.all()
         serializer = VendorSerializer(vendors, many=True)
+        #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
         return Response({
                 "data":serializer.data,
             },)
 
     def post(self, request):
         serializer = VendorSerializer(data=request.data)
+        #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -67,12 +69,13 @@ class VendorDetailView(APIView):
     
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]  
-    
+
     
     def get(self, request, id):
         try:
             vendor = Vendor.objects.get(id=id)
             serializer = VendorSerializer(vendor)
+            #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
             return Response({
                 "Vendor_id":vendor.name,
                 "data":serializer.data,
@@ -80,11 +83,12 @@ class VendorDetailView(APIView):
         except Vendor.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
     
-    
+
     def put(self, request, id):
         try:
             vendor = Vendor.objects.get(id=id)
             serializer = VendorSerializer(vendor,data=request.data)
+            headers = {'Authorization': f'Bearer {request.auth.access_token}'}
             if serializer.is_valid():
                 serializer.save()
                 return Response({
@@ -97,7 +101,9 @@ class VendorDetailView(APIView):
     def delete(self, request, id):
         try:
             vendor = Vendor.objects.get(id=id)
+            
             vendor.delete()
+            headers = {'Authorization': f'Bearer {request.auth.access_token}'}
             return Response(
                 {'message': 'Vendor deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except Vendor.DoesNotExist:
@@ -109,15 +115,17 @@ class PurchaseOrderListCreateView(APIView):
     
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    
+
     
     def get(self, request):
         purchase_orders = PurchaseOrder.objects.all()
         serializer = PurchaseOrderSerializer(purchase_orders, many=True)
+        #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
         return Response(serializer.data)
-
+ 
     def post(self, request):
         serializer = PurchaseOrderSerializer(data=request.data)
+        #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -129,16 +137,18 @@ class PurchaseOrderDetailView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     
-    
+
     def get(self, request, po_number):
         purchase_order = PurchaseOrder(po_number=po_number) 
         serializer = PurchaseOrderSerializer(purchase_order)
+        headers = {'Authorization': f'Bearer {request.auth.access_token}'}
         return Response(serializer.data, status=status.HTTP_404_NOT_FOUND)
 
-
+ 
     def put(self, request, po_number):
         purchase_order=PurchaseOrder(po_number=po_number)
         serializer=PurchaseOrderSerializer(purchase_order,data=request.data)
+        #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data,status=status.HTTP_404_NOT_FOUND)
@@ -148,6 +158,7 @@ class PurchaseOrderDetailView(APIView):
         try:
             PurchaseOrder = PurchaseOrder.objects.get(po_number=po_number)
             PurchaseOrder.delete()
+            #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
             return Response(
                 {'message': 'PurchaseOrder deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except PurchaseOrder.DoesNotExist:
@@ -159,7 +170,7 @@ class VendorPerformanceView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     
-    
+   
     def get(self, request, id):
         try:
             vendor = Vendor.objects.get(id=id)
@@ -168,6 +179,25 @@ class VendorPerformanceView(APIView):
                 "Vendor_id":vendor.name,
                 "data":serializer.data,
             },
+                            
                 status=status.HTTP_200_OK)
+
         except Vendor.DoesNotExist:
             return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        
+
+class RefreshTokenView(APIView):
+
+    def post(self, request):
+        refresh_token = request.data.get('refresh_token')
+
+        if refresh_token:
+            try:
+                refresh_token = RefreshToken(refresh_token)
+                access_token = str(refresh_token.access_token)
+                return Response({'access_token': access_token}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({'error': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response({'error': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
