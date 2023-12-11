@@ -1,0 +1,365 @@
+{
+	"info": {
+		"_postman_id": "46dd41f8-7330-4afb-9e06-6b7e0de1ee1f",
+		"name": "VENDOR_MANAGEMENT",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28713336"
+	},
+	"item": [
+		{
+			"name": "API_VENDOR_GET",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/app1/api/vendors/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"app1",
+						"api",
+						"vendors",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API_VENDOR_POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \r\n        \"Nasib Naik\",\r\n    \"contact_details\": \r\n        \"+91 9292929292\",\r\n    \"address\": \r\n        \"XYZ newyork\",\r\n    \"vendor_code\": \r\n        \"V005\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/app1/api/vendors/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"app1",
+						"api",
+						"vendors",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API_VENDORDETAIL_GET",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/app1/api/vendors/5/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"app1",
+						"api",
+						"vendors",
+						"5",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API_VENDORDETAIL_PUT",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 2,\r\n    \"name\": \"Subham Swain\",\r\n    \"contact_details\": \"+91 9292929299\",\r\n    \"address\": \"XYZ Mumbai,IND\",\r\n    \"vendor_code\": \"V002\",\r\n    \"on_time_delivery_rate\": 0.0,\r\n    \"quality_rating_avg\": 0.0,\r\n    \"average_response_time\": 0.0,\r\n    \"fulfillment_rate\": 0.0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/app1/api/vendors/3/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"app1",
+						"api",
+						"vendors",
+						"3",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API_VENDORDETAIL_DELETE",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/app1/api/vendors/1/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"app1",
+						"api",
+						"vendors",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API_VENDOR_PERFORMANCE",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/app1/api/vendors/4/performance/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"app1",
+						"api",
+						"vendors",
+						"4",
+						"performance",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API_PURCHASEORDER_POST",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzAyMTQ3NDE4LCJpYXQiOjE3MDIxNDYyMTgsImp0aSI6IjM0MjM3YTgzZDRlMjRkNzRiMjQ3ODRkMDQ0YTk3YmYyIiwidXNlcl9pZCI6NH0.DI9DMd0e46BSWrgZZT2oKfeZpxiOg0wPvgF7686rBoQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"po_number\": [\r\n        \"This field is required.\"\r\n    ],\r\n    \"order_date\": [\r\n        \"This field is required.\"\r\n    ],\r\n    \"delivery_date\": [\r\n        \"This field is required.\"\r\n    ],\r\n    \"items\": [\r\n        \"This field is required.\"\r\n    ],\r\n    \"quantity\": [\r\n        \"This field is required.\"\r\n    ],\r\n    \"issue_date\": [\r\n        \"This field is required.\"\r\n    ],\r\n    \"vendor\": [\r\n        \"This field is required.\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/app1/api/purchase_orders/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"app1",
+						"api",
+						"purchase_orders",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API_PURCHASEORDER_GET",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{   \r\n    \"vendor\": 5,  \r\n    \"po_number\": \"PO-125\",\r\n    \"order_date\": \"2023-11-29T12:00:00Z\",\r\n    \"delivery_date\": \"2023-12-05T12:00:00Z\",\r\n    \"items\": [\r\n        {\r\n            \"name\": \"Item 1\",\r\n            \"description\": \"Description of Item 1\"\r\n        },\r\n        {\r\n            \"name\": \"Item 2\",\r\n            \"description\": \"Description of Item 2\"\r\n        }\r\n    ],\r\n    \"quantity\": 30,\r\n    \"issue_date\": \"2023-11-30T12:00:00Z\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/app1/api/purchase_orders/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"app1",
+						"api",
+						"purchase_orders",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API_REGISTER",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"naseeb\",\r\n    \"password\": \"12345678\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/app1/api/register",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"app1",
+						"api",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API_LOGIN",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"naseeb\",\r\n    \"password\": \"12345678\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/app1/api/login/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"app1",
+						"api",
+						"login",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refresh_token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"refresh\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcwMjIzMjYxOCwiaWF0IjoxNzAyMTQ2MjE4LCJqdGkiOiI5YmMzMDMyMzA5NGU0MWM5YWQ1ZjAxOWRlYWU2OTFhYiIsInVzZXJfaWQiOjR9.JmueaXDdDTNSyTM6xu5jnAL4Qfa2EjkDDF6Qs8eNInc\",\r\n  \"access\": \"your_access_token_here\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/app1/token/refresh/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"app1",
+						"token",
+						"refresh",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
