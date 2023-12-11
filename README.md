@@ -7,8 +7,11 @@ This project implements a Django REST framework-based API to manage vendors, pur
 Please follow these steps to set up the project locally:
 
 1. Clone the repository:git clone https://github.com/naseeeb/vendor.git
+
 2. cd respiratory_name
+
 3.pip install -r requirements.txt
+
 4.python manage.py runserver
 -----------------------------------
 
