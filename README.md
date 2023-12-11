@@ -2,6 +2,17 @@ Project Name: Vendor Management
 Description: It is a vendor management apis which is created using django rest api. This will help in managing vendor , calculating their performances.
 This project implements a Django REST framework-based API to manage vendors, purchase orders, and vendor performance.
 
+-------------------------------
+## Installation and setup
+Please follow these steps to set up the project locally:
+
+1. Clone the repository:git clone https://github.com/naseeeb/vendor.git
+2. cd respiratory_name
+3.pip install -r requirements.txt
+4.python manage.py runserver
+-----------------------------------
+
+
 API Endpoints:
 
 User Registration and Authentication:
