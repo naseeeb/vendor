@@ -30,13 +30,16 @@ class RegisterUserView(APIView):
                 'access': str(refresh.access_token)
             }
             return Response(tokens, status=status.HTTP_201_CREATED)
+    
+        existing_user = User.objects.filter(username=request.data.get('username')).first()
+        if existing_user:
+            return Response({'error': 'User already exists'}, status=status.HTTP_409_CONFLICT)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginUserView(APIView):
    
     def post(self, request):
-
-        
         serializer = TokenObtainPairSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.user
@@ -46,6 +49,9 @@ class LoginUserView(APIView):
                 'access': str(refresh.access_token)
             }
             return Response(tokens, status=status.HTTP_200_OK)
+        if 'non_field_errors' in serializer.errors:
+            return Response({'error': 'Invalid username or password'}, status=status.HTTP_400_BAD_REQUEST)
+        
         return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -56,16 +62,21 @@ class VendorListCreateView(APIView):
 
     
     def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
         vendors = Vendor.objects.all()
+        if not vendors:
+            return Response({"error": "No vendors found"}, status=status.HTTP_404_NOT_FOUND)
         serializer = VendorSerializer(vendors, many=True)
-        #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
         return Response({
-                "data":serializer.data,
-            },)
+            "data": serializer.data,
+        }, status=status.HTTP_200_OK)
 
     def post(self, request):
+        if not request.user.is_authenticated:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        
         serializer = VendorSerializer(data=request.data)
-        #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -78,42 +89,47 @@ class VendorDetailView(APIView):
 
     
     def get(self, request, id):
+        if not request.user.is_authenticated:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        
         try:
             vendor = Vendor.objects.get(id=id)
             serializer = VendorSerializer(vendor)
-            #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
             return Response({
-                "Vendor_id":vendor.name,
-                "data":serializer.data,
-            })
+                "Vendor_id": vendor.name,
+                "data": serializer.data,
+            }, status=status.HTTP_200_OK)
         except Vendor.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Vendor not found"}, status=status.HTTP_404_NOT_FOUND)
     
 
     def put(self, request, id):
+        if not request.user.is_authenticated:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        
         try:
             vendor = Vendor.objects.get(id=id)
-            serializer = VendorSerializer(vendor,data=request.data)
-            headers = {'Authorization': f'Bearer {request.auth.access_token}'}
+            serializer = VendorSerializer(vendor, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({
-                "Vendor_id":vendor.name,
-                "data":serializer.data,
-            })
+                    "Vendor_id": vendor.name,
+                    "data": serializer.data,
+                }, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Vendor.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, id):
+        if not request.user.is_authenticated:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        
         try:
             vendor = Vendor.objects.get(id=id)
-            
             vendor.delete()
-            headers = {'Authorization': f'Bearer {request.auth.access_token}'}
-            return Response(
-                {'message': 'Vendor deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': 'Vendor deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except Vendor.DoesNotExist:
-            return Response({'message': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
     
     
     
@@ -124,20 +140,28 @@ class PurchaseOrderListCreateView(APIView):
 
     
     def get(self, request):
-        vendor_id = request.query_params.get('vendor')
+        if not request.user.is_authenticated:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
         
+        vendor_id = request.query_params.get('vendor')
 
         if vendor_id:
-            purchase_orders = PurchaseOrder.objects.filter(vendor=vendor_id)
+            try:
+                purchase_orders = PurchaseOrder.objects.filter(vendor=vendor_id)
+                serializer = PurchaseOrderSerializer(purchase_orders, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except PurchaseOrder.DoesNotExist:
+                return Response({"error": "Purchase orders not found for this vendor"}, status=status.HTTP_404_NOT_FOUND)
         else:
             purchase_orders = PurchaseOrder.objects.all()
-        
-        serializer = PurchaseOrderSerializer(purchase_orders, many=True)
-        return Response(serializer.data)
+            serializer = PurchaseOrderSerializer(purchase_orders, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
  
     def post(self, request):
+        if not request.user.is_authenticated:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        
         serializer = PurchaseOrderSerializer(data=request.data)
-        #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -152,32 +176,40 @@ class PurchaseOrderDetailView(APIView):
     
 
     def get(self, request, po_number):
+        if not request.user.is_authenticated:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+
         try:
-            purchase_order = PurchaseOrder.objects.get(po_number=po_number) 
+            purchase_order = PurchaseOrder.objects.get(po_number=po_number)
             serializer = PurchaseOrderSerializer(purchase_order)
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except PurchaseOrder.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Purchase order not found"}, status=status.HTTP_404_NOT_FOUND)
 
  
     def put(self, request, po_number):
-        purchase_order=PurchaseOrder.objects.get(po_number=po_number)
-        serializer=PurchaseOrderSerializer(purchase_order,data=request.data)
-        #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_404_NOT_FOUND)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not request.user.is_authenticated:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            purchase_order = PurchaseOrder.objects.get(po_number=po_number)
+            serializer = PurchaseOrderSerializer(purchase_order, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except PurchaseOrder.DoesNotExist:
+            return Response({"error": "Purchase order not found"}, status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, po_number):
+        if not request.user.is_authenticated:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        
         try:
-            PurchaseOrder = PurchaseOrder.objects.get(po_number=po_number)
-            PurchaseOrder.delete()
-            #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
-            return Response(
-                {'message': 'PurchaseOrder deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+            purchase_order = PurchaseOrder.objects.get(po_number=po_number)
+            purchase_order.delete()
+            return Response({'message': 'Purchase order deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except PurchaseOrder.DoesNotExist:
-            return Response({'message': 'PurchaseOrder not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Purchase order not found'}, status=status.HTTP_404_NOT_FOUND)
                
         
 class VendorPerformanceView(APIView):
@@ -187,16 +219,15 @@ class VendorPerformanceView(APIView):
     
    
     def get(self, request, id):
+        if not request.user.is_authenticated:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
         try:
             vendor = Vendor.objects.get(id=id)
             serializer = PerformanceSerializer(vendor)
             return Response({
-                "Vendor_id":vendor.name,
-                "data":serializer.data,
-            },
-                            
-                status=status.HTTP_200_OK)
-
+                "Vendor_id": vendor.name,
+                "data": serializer.data,
+            }, status=status.HTTP_200_OK)
         except Vendor.DoesNotExist:
             return Response({'error': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
         
