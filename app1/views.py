@@ -11,6 +11,12 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import F
+from django.shortcuts import get_object_or_404
+from datetime import datetime
+
 class RegisterUserView(APIView):
 
     def post(self, request):
@@ -118,9 +124,15 @@ class PurchaseOrderListCreateView(APIView):
 
     
     def get(self, request):
-        purchase_orders = PurchaseOrder.objects.all()
+        vendor_id = request.query_params.get('vendor')
+        
+
+        if vendor_id:
+            purchase_orders = PurchaseOrder.objects.filter(vendor=vendor_id)
+        else:
+            purchase_orders = PurchaseOrder.objects.all()
+        
         serializer = PurchaseOrderSerializer(purchase_orders, many=True)
-        #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
         return Response(serializer.data)
  
     def post(self, request):
@@ -130,7 +142,8 @@ class PurchaseOrderListCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
+    
 
 class PurchaseOrderDetailView(APIView):
     
@@ -139,14 +152,16 @@ class PurchaseOrderDetailView(APIView):
     
 
     def get(self, request, po_number):
-        purchase_order = PurchaseOrder(po_number=po_number) 
-        serializer = PurchaseOrderSerializer(purchase_order)
-        headers = {'Authorization': f'Bearer {request.auth.access_token}'}
-        return Response(serializer.data, status=status.HTTP_404_NOT_FOUND)
+        try:
+            purchase_order = PurchaseOrder.objects.get(po_number=po_number) 
+            serializer = PurchaseOrderSerializer(purchase_order)
+            return Response(serializer.data)
+        except PurchaseOrder.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
  
     def put(self, request, po_number):
-        purchase_order=PurchaseOrder(po_number=po_number)
+        purchase_order=PurchaseOrder.objects.get(po_number=po_number)
         serializer=PurchaseOrderSerializer(purchase_order,data=request.data)
         #headers = {'Authorization': f'Bearer {request.auth.access_token}'}
         if serializer.is_valid():
@@ -163,8 +178,8 @@ class PurchaseOrderDetailView(APIView):
                 {'message': 'PurchaseOrder deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except PurchaseOrder.DoesNotExist:
             return Response({'message': 'PurchaseOrder not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
+               
+        
 class VendorPerformanceView(APIView):
     
     authentication_classes = [JWTAuthentication]
@@ -201,3 +216,6 @@ class RefreshTokenView(APIView):
                 return Response({'error': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response({'error': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        
